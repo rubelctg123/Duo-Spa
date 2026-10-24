@@ -160,7 +160,7 @@ export function createClearSessionCookie(): string {
  */
 export async function authenticateAdmin(
   req: IncomingMessage,
-  db: Db
+  dbOrGetter: Db | (() => Promise<Db>)
 ): Promise<{ authenticated: boolean; user?: any; error?: string }> {
   let token = '';
 
@@ -189,6 +189,7 @@ export async function authenticateAdmin(
     return { authenticated: false, error: 'Identifiant administrateur invalide.' };
   }
 
+  const db = typeof dbOrGetter === 'function' ? await dbOrGetter() : dbOrGetter;
   const adminUser = await db.collection('adminUsers').findOne({
     _id: new ObjectId(sub),
     isActive: true,

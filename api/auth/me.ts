@@ -27,8 +27,7 @@ export default async function handler(req: IncomingMessage, res: ResponseWithJso
   }
 
   try {
-    const db = await getDatabase();
-    const auth = await authenticateAdmin(req, db);
+    const auth = await authenticateAdmin(req, getDatabase);
 
     if (!auth.authenticated || !auth.user) {
       return sendJson(401, {

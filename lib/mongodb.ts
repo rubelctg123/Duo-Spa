@@ -33,14 +33,20 @@ export async function getClient(): Promise<MongoClient> {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
   }
 
+  const clientOptions = {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000,
+  };
+
   if (process.env.NODE_ENV === 'development') {
     if (!global._mongoClientPromise) {
-      const client = new MongoClient(uri);
+      const client = new MongoClient(uri, clientOptions);
       global._mongoClientPromise = client.connect();
     }
     clientPromise = global._mongoClientPromise;
   } else {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, clientOptions);
     clientPromise = client.connect();
   }
 
