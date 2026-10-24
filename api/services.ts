@@ -56,6 +56,7 @@ export default async function handler(req: RequestWithQuery, res: ResponseWithJs
     return sendJson(500, {
       success: false,
       error: 'Impossible de charger le catalogue de soins pour le moment.',
+      debug: error?.message || String(error),
     });
   }
 }

@@ -73,6 +73,7 @@ export default async function handler(req: RequestWithQuery, res: ResponseWithJs
     return sendJson(500, {
       success: false,
       error: 'Erreur lors du calcul des disponibilités en temps réel.',
+      debug: error?.message || String(error),
     });
   }
 }

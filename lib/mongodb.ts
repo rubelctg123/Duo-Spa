@@ -30,8 +30,10 @@ export async function getClient(): Promise<MongoClient> {
   }
 
   if (!uri) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local or Vercel Settings');
   }
+
+  uri = uri.trim().replace(/^["']|["']$/g, '');
 
   const clientOptions = {
     maxPoolSize: 10,
