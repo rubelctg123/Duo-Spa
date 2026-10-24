@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AdminRouter } from './admin/AdminRouter';
 import { DemoBanner } from './components/DemoBanner';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -14,10 +15,32 @@ import { SAMPLE_TREATMENTS } from './data/treatmentsData';
 import type { Treatment, BookingState } from './types/treatment';
 
 export function App() {
+  const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
   const [currentView, setCurrentView] = useState<string>('accueil');
+  const [treatmentsList, setTreatmentsList] = useState<Treatment[]>(SAMPLE_TREATMENTS);
   const [selectedTreatmentDetail, setSelectedTreatmentDetail] = useState<Treatment | null>(null);
   const [bookingPreselectedId, setBookingPreselectedId] = useState<string | null>(null);
   const [latestBooking, setLatestBooking] = useState<BookingState | null>(null);
+
+  // Fetch live active services from backend API on mount
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/services')
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data.success && Array.isArray(data.services) && data.services.length > 0) {
+          setTreatmentsList(data.services);
+        }
+      })
+      .catch(() => {
+        // Retain initial mock data if API is loading or offline
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Synchronize with URL hash on mount and hash changes
   useEffect(() => {
@@ -58,7 +81,12 @@ export function App() {
     setSelectedTreatmentDetail(treatment);
   };
 
-  const duoTreatments = SAMPLE_TREATMENTS.filter((t) => t.format === 'duo');
+  // If navigating to an admin route, render AdminRouter after unconditional hooks execution
+  if (isAdminRoute) {
+    return <AdminRouter />;
+  }
+
+  const duoTreatments = treatmentsList.filter((t) => t.format === 'duo');
 
   return (
     <div className="min-h-screen flex flex-col bg-ivory-50 text-taupe-800 font-sans">
@@ -76,7 +104,7 @@ export function App() {
       <main className="flex-1">
         {currentView === 'accueil' && (
           <HomePage
-            featuredTreatments={SAMPLE_TREATMENTS}
+            featuredTreatments={treatmentsList}
             onNavigate={navigateTo}
             onOpenBooking={handleOpenBooking}
             onViewDetails={handleViewDetails}
@@ -85,7 +113,7 @@ export function App() {
 
         {currentView === 'soins' && (
           <TreatmentsPage
-            treatments={SAMPLE_TREATMENTS}
+            treatments={treatmentsList}
             onOpenBooking={handleOpenBooking}
             onViewDetails={handleViewDetails}
           />
@@ -107,7 +135,7 @@ export function App() {
 
         {currentView === 'reserver' && (
           <BookingPage
-            treatments={SAMPLE_TREATMENTS}
+            treatments={treatmentsList}
             preselectedTreatmentId={bookingPreselectedId}
             onBookingComplete={handleBookingComplete}
             onNavigateToCatalog={() => navigateTo('soins')}

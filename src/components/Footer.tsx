@@ -145,6 +145,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               © {currentYear} Duo Spa Joliette. Tous droits réservés.
               <span className="mx-2 text-sand-600">•</span>
               Protection des renseignements personnels conforme à la <strong>Loi 25 (Québec)</strong>.
+              <span className="mx-2 text-sand-600">•</span>
+              <a href="/admin/dashboard" className="text-sand-400 hover:text-gold-300 transition-colors">
+                Console d’administration
+              </a>
             </p>
           </div>
           <div className="flex items-center gap-1.5 text-sand-400 text-[11px] bg-taupe-800/80 px-3 py-1.5 rounded-lg border border-taupe-700">
